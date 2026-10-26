@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Chat Online</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Mystical backdrop -->
+    <div class="mystic-backdrop" aria-hidden="true">
+        <div class="spiritual-aura"></div>
+        <div class="aura-streaks"></div>
+
+        <!-- Giant talisman seal (rotating magic circle) -->
+        <svg class="seal-bg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <circle cx="100" cy="100" r="82" fill="none" stroke="currentColor" stroke-width="0.6" stroke-dasharray="3 5"/>
+            <circle cx="100" cy="100" r="58" fill="none" stroke="currentColor" stroke-width="1"/>
+            <polygon points="100,42 150,129 50,129" fill="none" stroke="currentColor" stroke-width="0.9"/>
+            <polygon points="100,158 50,71 150,71" fill="none" stroke="currentColor" stroke-width="0.9"/>
+            <circle cx="100" cy="100" r="12" fill="none" stroke="currentColor" stroke-width="1"/>
+        </svg>
+
+        <!-- Floating runes -->
+        <div class="talisman-runes">
+            <span class="rune" style="left: 6%;  top: 18%; animation-delay: 0s;">符</span>
+            <span class="rune" style="left: 14%; top: 68%; animation-delay: -3s;">仙</span>
+            <span class="rune" style="left: 84%; top: 14%; animation-delay: -5s;">道</span>
+            <span class="rune" style="left: 90%; top: 62%; animation-delay: -2s;">靈</span>
+            <span class="rune" style="left: 48%; top: 6%;  animation-delay: -7s;">氣</span>
+            <span class="rune" style="left: 50%; top: 88%; animation-delay: -4s;">王</span>
+        </div>
+
+        <!-- Qi / talisman particles are generated here by JS -->
+        <div class="qi-particles" id="qi-particles"></div>
+    </div>
+
+    <!-- Screen 1: sign up or log in -->
+    <main id="auth-screen" class="chat auth">
+        <div class="portrait">
+            <img src="wangling.jpg" alt="Class Chat portrait" width="80" height="80">
+        </div>
+        <h1>Class Chat</h1>
+        <p class="subtitle">Log in to join your classmates in Class Chat.</p>
+
+        <form id="auth-form">
+            <label for="display-name">Display name (sign up only)</label>
+            <input id="display-name" type="text" maxlength="24"
+                placeholder="Your name or nickname">
+
+            <label for="email">Email</label>
+            <input id="email" type="email" required placeholder="you@school.com">
+
+            <label for="password">Password (at least 8 characters)</label>
+            <input id="password" type="password" minlength="8" required>
+
+            <div class="auth-buttons">
+                <button type="submit" id="login-btn">Log in</button>
+                <button type="button" id="signup-btn" class="ghost">Sign up</button>
+            </div>
+        </form>
+        <p id="auth-message" class="auth-message" role="status"></p>
+    </main>
+
+    <!-- Screen 2: the chat room -->
+    <main id="chat-screen" class="chat" hidden>
+        <header class="chat-header">
+            <div class="portrait">
+                <img src="wangling.jpg" alt="Class Chat portrait" width="80" height="80">
+            </div>
+            <div class="brand">
+                <!-- Talisman seal motif -->
+                <svg class="header-seal" viewBox="0 0 64 64" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <polygon points="32,12 49,41 15,41" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <polygon points="32,52 15,23 49,23" fill="none" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="32" cy="32" r="3.5" fill="currentColor"/>
+                </svg>
+                <h1>Class Chat</h1>
+                <!-- Easter egg: Crispy Noodles -->
+                <span class="noodles" role="img" aria-label="Crispy Noodles"
+                      title="Crispy Noodles">🍜</span>
+            </div>
+            <div class="controls">
+                <span id="who">Signed in</span>
+                <button id="logout-btn" type="button" class="ghost">Log out</button>
+            </div>
+        </header>
+
+        <!-- Who is online (Realtime Presence) -->
+        <div class="online-bar">
+            <span class="online-label">Online <b id="online-count">0</b></span>
+            <span id="online-list" class="online-list"></span>
+        </div>
+
+        <ul id="messages" class="messages" aria-live="polite"></ul>
+
+        <form id="message-form" class="composer" autocomplete="off">
+            <label for="message-input" class="visually-hidden">Message</label>
+            <input id="message-input" type="text" maxlength="500" required
+                   placeholder="Type a message, /weather Manila, or /noodles">
+            <button type="submit">Send</button>
+        </form>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+    <script src="sounds.js"></script>
+
+    <!-- Qi / talisman particles (decoration only, separate from chat code) -->
+    <script>
+        const qiBox = document.getElementById("qi-particles");
+        const RUNE_CHARS = ["符", "靈", "仙", "道", "氣", "王", "封", "天"];
+
+        function makeParticle() {
+            const el = document.createElement("div");
+            const isTalisman = Math.random() < 0.22;
+            el.style.left = Math.random() * 100 + "%";
+            el.style.animationDuration = 8 + Math.random() * 10 + "s";
+
+            if (isTalisman) {
+                // small golden talisman paper with a rune
+                el.className = "particle talisman";
+                el.textContent = RUNE_CHARS[Math.floor(Math.random() * RUNE_CHARS.length)];
+                el.style.fontSize = 12 + Math.random() * 8 + "px";
+            } else {
+                // glowing Qi orb (purple or cyan)
+                const size = 4 + Math.random() * 12;
+                el.className = "particle qi " + (Math.random() < 0.5 ? "violet" : "cyan");
+                el.style.width = el.style.height = size + "px";
+            }
+
+            qiBox.appendChild(el);
+            el.addEventListener("animationend", () => el.remove());
+        }
+
+        for (let i = 0; i < 14; i++) setTimeout(makeParticle, i * 300);
+        setInterval(makeParticle, 700);
+    </script>
+</body>
+</html>

@@ -1,0 +1,886 @@
+/* =========================================================
+   Class Chat - Sports Car Theme
+   CSS only. No changes needed to index.html or script.js.
+   Put car.png in the same folder as this file.
+   ========================================================= */
+
+:root {
+  --bg: #07080b;
+  --panel: rgba(12, 14, 20, 0.32);
+  --panel-solid: #0e1118;
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #eef1f6;
+  --muted: #98a1b3;
+  --red: #e10600;
+  --red-glow: rgba(225, 6, 0, 0.55);
+  --silver: #c9d1de;
+  --font-head: "Rajdhani", "Segoe UI", sans-serif;
+  --font-body: "Rajdhani", "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Keep the HTML "hidden" attribute working with display:flex below */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* =========================================================
+   BACKGROUND (sports car)
+   ========================================================= */
+.mystic-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(7, 8, 11, 0.22) 0%, rgba(7, 8, 11, 0) 45%, rgba(7, 8, 11, 0.4) 100%),
+    url("car.png") center 70% / cover no-repeat,
+    var(--bg);
+  animation: car-drift 22s ease-in-out infinite alternate;
+}
+
+/* Dark vignette so the chat stays readable */
+.mystic-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, transparent 45%, rgba(0, 0, 0, 0.5) 100%);
+  z-index: 1;
+}
+
+/* Red headlight glow on the floor */
+.spiritual-aura {
+  position: absolute;
+  left: 50%;
+  bottom: -10%;
+  width: 90vmax;
+  height: 40vmax;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, var(--red-glow) 0%, transparent 65%);
+  opacity: 0.35;
+  filter: blur(40px);
+  z-index: 1;
+  animation: glow-pulse 5s ease-in-out infinite;
+}
+
+/* Speed streaks */
+.aura-streaks {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    repeating-linear-gradient(
+      100deg,
+      transparent 0 120px,
+      rgba(255, 255, 255, 0.05) 120px 122px,
+      transparent 122px 260px
+    );
+  opacity: 0.6;
+  animation: streaks 3s linear infinite;
+}
+
+/* The big rotating seal becomes a spinning wheel / rim */
+.seal-bg {
+  position: absolute;
+  right: -12vmin;
+  bottom: -14vmin;
+  width: 62vmin;
+  height: 62vmin;
+  color: var(--silver);
+  opacity: 0.09;
+  z-index: 2;
+  animation: spin 40s linear infinite;
+}
+
+/* Chinese runes are hidden for the racing look */
+.talisman-runes {
+  display: none;
+}
+
+/* Sparks (particles created by the JS) */
+.qi-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  bottom: -30px;
+  border-radius: 50%;
+  opacity: 0;
+  animation-name: spark-rise;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.particle.qi.violet {
+  background: radial-gradient(circle, #ff8a5c 0%, var(--red) 60%, transparent 70%);
+  box-shadow: 0 0 12px 2px var(--red-glow);
+}
+
+.particle.qi.cyan {
+  background: radial-gradient(circle, #ffffff 0%, var(--silver) 55%, transparent 70%);
+  box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.4);
+}
+
+/* talisman particles turn into tiny checkered flags */
+.particle.talisman {
+  font-size: 0 !important;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  background:
+    conic-gradient(#fff 25%, #111 0 50%, #fff 0 75%, #111 0) 0 0 / 7px 7px;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+}
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+.chat {
+  position: relative;
+  z-index: 5;
+  width: min(760px, 100%);
+  height: min(92vh, 780px);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  backdrop-filter: blur(7px) saturate(115%);
+  -webkit-backdrop-filter: blur(7px) saturate(115%);
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  overflow: hidden;
+}
+
+/* Red racing stripe on top of the card */
+.chat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--red) 20%, #fff 50%, var(--red) 80%, transparent);
+  z-index: 2;
+}
+
+/* ---------- Login screen ---------- */
+.chat.auth {
+  height: auto;
+  max-width: 430px;
+  padding: 32px 30px 28px;
+  align-items: stretch;
+  text-align: center;
+}
+
+.chat.auth h1 {
+  margin: 14px 0 4px;
+}
+
+.subtitle {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+#auth-form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+#auth-form label {
+  margin: 12px 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.auth-buttons button {
+  flex: 1;
+}
+
+.auth-message {
+  min-height: 1.4em;
+  margin: 14px 0 0;
+  font-size: 0.95rem;
+  color: #ff8a80;
+}
+
+/* ---------- Portrait ---------- */
+.portrait {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--red), #fff, var(--red), #333, var(--red));
+  box-shadow: 0 0 22px var(--red-glow);
+  animation: ring-spin 6s linear infinite;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  background: var(--panel-solid);
+  border: 2px solid var(--panel-solid);
+  animation: ring-spin-reverse 6s linear infinite;
+}
+
+/* ---------- Headings ---------- */
+h1 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.9rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin: 0;
+  background: linear-gradient(180deg, #ffffff 30%, #9aa3b5 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+input::placeholder {
+  color: #6f7788;
+}
+
+input:focus {
+  border-color: var(--red);
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 0 0 3px rgba(225, 6, 0, 0.25);
+}
+
+button {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff2a1f, var(--red) 55%, #8f0300);
+  box-shadow: 0 6px 18px rgba(225, 6, 0, 0.35);
+  transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.12);
+  box-shadow: 0 10px 26px rgba(225, 6, 0, 0.5);
+}
+
+button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--silver);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+button.ghost:hover {
+  border-color: #fff;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+/* =========================================================
+   CHAT HEADER
+   ========================================================= */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent);
+}
+
+.chat-header .portrait {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.brand h1 {
+  font-size: 1.5rem;
+}
+
+.header-seal {
+  width: 26px;
+  height: 26px;
+  color: var(--red);
+  filter: drop-shadow(0 0 6px var(--red-glow));
+  animation: spin 12s linear infinite;
+}
+
+.noodles {
+  font-size: 1.3rem;
+  cursor: default;
+  transition: transform 0.3s;
+}
+
+.noodles:hover {
+  transform: rotate(20deg) scale(1.25);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#who {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #fff;
+  background: rgba(225, 6, 0, 0.18);
+  border: 1px solid rgba(225, 6, 0, 0.5);
+  border-radius: 999px;
+}
+
+.controls button {
+  padding: 8px 14px;
+  font-size: 0.85rem;
+}
+
+/* =========================================================
+   MESSAGES
+   ========================================================= */
+.messages {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+.messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background: var(--red);
+}
+
+.message {
+  position: relative;
+  align-self: flex-start;
+  max-width: 78%;
+  padding: 10px 14px 8px;
+  background: rgba(20, 22, 30, 0.45);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--silver);
+  border-radius: 4px 14px 14px 14px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  animation: msg-in 0.28s ease-out;
+}
+
+.message .author {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.message p {
+  margin: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.message time {
+  display: block;
+  margin-top: 4px;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* My messages */
+.message.mine {
+  align-self: flex-end;
+  background: linear-gradient(135deg, rgba(225, 6, 0, 0.5), rgba(120, 3, 0, 0.45));
+  border-color: rgba(255, 90, 80, 0.45);
+  border-left-width: 1px;
+  border-right: 3px solid #fff;
+  border-radius: 14px 4px 14px 14px;
+  box-shadow: 0 6px 20px rgba(225, 6, 0, 0.22);
+}
+
+.message.mine .author {
+  color: #ffd2cf;
+}
+
+/* Bot messages (only you can see) */
+.message.bot {
+  align-self: center;
+  max-width: 90%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  border-left: 1px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.message.bot .author {
+  color: #ffb4ae;
+  font-size: 0.7rem;
+}
+
+/* =========================================================
+   COMPOSER
+   ========================================================= */
+.composer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--line);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.composer input {
+  flex: 1;
+  min-width: 0;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes ring-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+@keyframes car-drift {
+  from { background-position: 0 0, 48% 70%, 0 0; }
+  to   { background-position: 0 0, 52% 70%, 0 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.5; }
+}
+
+@keyframes streaks {
+  from { background-position: 0 0; }
+  to   { background-position: 260px 0; }
+}
+
+@keyframes spark-rise {
+  0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+  12%  { opacity: 0.95; }
+  100% { transform: translateY(-105vh) scale(1.1); opacity: 0; }
+}
+
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+@media (max-width: 560px) {
+  body {
+    padding: 0;
+  }
+
+  .chat {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+
+  .chat.auth {
+    height: auto;
+    margin: 16px;
+    width: calc(100% - 32px);
+    border-radius: 18px;
+  }
+
+  .chat-header {
+    padding: 14px 12px 10px;
+    gap: 10px;
+  }
+
+  .brand h1 {
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+  }
+
+  .header-seal {
+    display: none;
+  }
+
+  #who {
+    max-width: 90px;
+  }
+
+  .message {
+    max-width: 88%;
+  }
+
+  .mystic-backdrop {
+    background-position: 0 0, 40% 60%, 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* =========================================================
+   Unsend button, online bar
+   ========================================================= */
+.message .unsend {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  padding: 2px 9px;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  box-shadow: none;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.message:hover .unsend,
+.message .unsend:focus-visible {
+  opacity: 1;
+}
+
+.message .unsend:hover {
+  background: rgba(225, 6, 0, 0.8);
+  transform: none;
+  filter: none;
+  box-shadow: none;
+}
+
+@media (hover: none) {
+  .message .unsend { opacity: 0.85; }
+}
+
+.online-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.85rem;
+}
+
+.online-label {
+  flex: 0 0 auto;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.online-label b {
+  color: #5dff8f;
+}
+
+.online-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.online-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.online-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #35e06f;
+  box-shadow: 0 0 8px #35e06f;
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* =========================================================
+   Reactions (like Messenger)
+   ========================================================= */
+/* smiley button that appears next to the message on hover */
+.message .react-btn {
+  position: absolute;
+  top: 50%;
+  right: -38px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-shadow: none;
+  background: rgba(14, 17, 24, 0.85);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: none;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.message.mine .react-btn {
+  right: auto;
+  left: -38px;
+}
+
+.message:hover .react-btn,
+.message .react-btn:focus-visible {
+  opacity: 1;
+}
+
+.message .react-btn:hover,
+.message .react-btn:active {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-50%);
+  filter: none;
+  box-shadow: none;
+}
+
+@media (hover: none) {
+  .message .react-btn { opacity: 0.85; }
+}
+
+/* the emoji bar */
+.message .reaction-picker {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: none;
+  gap: 2px;
+  padding: 5px 8px;
+  background: rgba(14, 17, 24, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  text-shadow: none;
+}
+
+.message.mine .reaction-picker {
+  left: auto;
+  right: 0;
+}
+
+.message .reaction-picker.below {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.message .reaction-picker.open {
+  display: flex;
+  animation: picker-in 0.16s ease-out;
+}
+
+.message .reaction-pick {
+  padding: 2px 5px;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  background: transparent;
+  border-radius: 10px;
+  box-shadow: none;
+  transition: transform 0.12s;
+}
+
+.message .reaction-pick:hover {
+  transform: translateY(-5px) scale(1.35);
+  filter: none;
+  box-shadow: none;
+}
+
+.message .reaction-pick.chosen {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* the chips under (overlapping) the message */
+.message.has-reactions {
+  margin-bottom: 14px;
+}
+
+.message .reactions {
+  position: absolute;
+  bottom: -14px;
+  left: 12px;
+  display: flex;
+  gap: 4px;
+}
+
+.message.mine .reactions {
+  left: auto;
+  right: 12px;
+}
+
+.message .reaction-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  font-size: 0.85rem;
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: none;
+  color: var(--text);
+  background: rgba(14, 17, 24, 0.93);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.message .reaction-chip b {
+  font-size: 0.75rem;
+  color: var(--silver);
+}
+
+.message .reaction-chip.mine {
+  background: rgba(90, 10, 8, 0.95);
+  border-color: var(--red);
+}
+
+.message .reaction-chip:hover {
+  transform: none;
+  filter: brightness(1.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes picker-in {
+  from { opacity: 0; transform: translateY(6px) scale(0.9); }
+  to   { opacity: 1; transform: none; }
+}
